@@ -1,0 +1,10 @@
+{
+  "ttn": {
+    "app_id": "",
+    "access_key": ""
+  },
+  "thingsboard": {
+    "url": "",
+    "access_token": ""
+  }
+}

@@ -34,7 +34,7 @@ def on_message_lora(client, userdata, message):
     data = []
     for i in range(8, int(len(hex)), 2):   # ignore first 4 bytes (= 8 niples)
         data.append(int(hex[i:i+2],16)) # convert hex byte to int
-    process_data(data,'octa-robin')
+    process_data(data,payload["hardware_serial"])
     print("---------------------------------------------")
 
 def process_data(data, device_id):

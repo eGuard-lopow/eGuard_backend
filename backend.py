@@ -9,9 +9,14 @@ from parser import parse_alp
 def on_message_d7(client, userdata, message):
     print("--------------- Dash-7 Received ---------------")
     raw = str(message.payload.decode("utf-8"))
+    print("message topic: "+str(message.topic))
+    hardware_id = message.topic.split('/')[1]
+    print("hardware_id: "+hardware_id)
+    print("message qos: "+str(message.qos))
+    print("message retain flag: "+str(message.retain))
     print("raw message: "+raw)
     data = parse_alp(raw)
-    process_data(data,'octa-robin')
+    process_data(data, hardware_id)
     print("-----------------------------------------------")
 
 def on_message_lora(client, userdata, message):
@@ -34,7 +39,7 @@ def on_message_lora(client, userdata, message):
     data = []
     for i in range(8, int(len(hex)), 2):   # ignore first 4 bytes (= 8 niples)
         data.append(int(hex[i:i+2],16)) # convert hex byte to int
-    process_data(data,payload["hardware_serial"])
+    process_data(data, payload["hardware_serial"])
     print("---------------------------------------------")
 
 def process_data(data, device_id):

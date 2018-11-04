@@ -11,11 +11,7 @@ def on_message_d7(client, userdata, message):
     raw = str(message.payload.decode("utf-8"))
     print("raw message: "+raw)
     data = parse_alp(raw)
-    print(data)
-    temp = float((data[1]<<8)|data[0])/100
-    hum = float((data[3]<<8)|data[2])/100
-    print("Temperature [C]: "+str(temp))
-    print("Relative Humidity [%]: "+str(hum))
+    process_data(data)
     print("-----------------------------------------------")
 
 def on_message_lora(client, userdata, message):
@@ -38,14 +34,16 @@ def on_message_lora(client, userdata, message):
     data = []
     for i in range(8, int(len(hex)), 2):   # ignore first 4 bytes (= 8 niples)
         data.append(int(hex[i:i+2],16)) # convert hex byte to int
+    process_data(data)
+    print("---------------------------------------------")
 
+def process_data(data):
     print("data: "+str(data))
-
     temp = float((data[1]<<8)|data[0])/100
     hum = float((data[3]<<8)|data[2])/100
     print("Temperature [C]: "+str(temp))
     print("Relative Humidity [%]: "+str(hum))
-    print("---------------------------------------------")
+
 
 # ------------------------------
 # Load keys

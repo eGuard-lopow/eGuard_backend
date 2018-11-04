@@ -3,6 +3,7 @@
 # ------------------------------
 .idea/
 thingsboard.pyc
+parser.pyc
 keys.json
 
 # ------------------------------

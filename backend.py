@@ -11,7 +11,7 @@ def on_message_d7(client, userdata, message):
     raw = str(message.payload.decode("utf-8"))
     print("raw message: "+raw)
     data = parse_alp(raw)
-    process_data(data)
+    process_data(data,'octa-robin')
     print("-----------------------------------------------")
 
 def on_message_lora(client, userdata, message):
@@ -34,15 +34,28 @@ def on_message_lora(client, userdata, message):
     data = []
     for i in range(8, int(len(hex)), 2):   # ignore first 4 bytes (= 8 niples)
         data.append(int(hex[i:i+2],16)) # convert hex byte to int
-    process_data(data)
+    process_data(data,'octa-robin')
     print("---------------------------------------------")
 
-def process_data(data):
+def process_data(data, device_id):
     print("data: "+str(data))
-    temp = float((data[1]<<8)|data[0])/100
-    hum = float((data[3]<<8)|data[2])/100
-    print("Temperature [C]: "+str(temp))
-    print("Relative Humidity [%]: "+str(hum))
+    temperature = float((data[1]<<8)|data[0])/100
+    humidity = float((data[3]<<8)|data[2])/100
+    print("Temperature [C]: "+str(temperature))
+    print("Relative Humidity [%]: "+str(humidity))
+    # -------------------------
+    # Send to Thingsboard
+    # -------------------------
+    current_ts_ms = int(round(time.time() * 1000))   # current timestamp in milliseconds, needed for Thingsboard
+    # send non-numeric data ('attributes') to Thingsboard as JSON. Example:
+    # thingsboard_attributes = {'last_data_rate': str(payload['metadata']['data_rate'])}
+    # thingsboard.sendDeviceAttributes(device_id, thingsboard_attributes)
+    # send numeric data ('telemetry') to Thingsboard as JSON (only floats or integers!!!). Example:
+    thingsboard_telemetry = {'temperature': temperature,
+                             'humidity': humidity}
+                             # 'latitude': float(payload['latitude']),
+                             # 'longitude': float(payload['longitude'])}
+    thingsboard.sendDeviceTelemetry(device_id, current_ts_ms, thingsboard_telemetry)
 
 
 # ------------------------------

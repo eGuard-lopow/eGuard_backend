@@ -44,23 +44,26 @@ def on_message_lora(client, userdata, message):
 
 def process_data(data, device_id):
     print("data: "+str(data))
-    temperature = float((data[1]<<8)|data[0])/100
-    humidity = float((data[3]<<8)|data[2])/100
-    print("Temperature [C]: "+str(temperature))
-    print("Relative Humidity [%]: "+str(humidity))
-    # -------------------------
-    # Send to Thingsboard
-    # -------------------------
-    current_ts_ms = int(round(time.time() * 1000))   # current timestamp in milliseconds, needed for Thingsboard
-    # send non-numeric data ('attributes') to Thingsboard as JSON. Example:
-    # thingsboard_attributes = {'last_data_rate': str(payload['metadata']['data_rate'])}
-    # thingsboard.sendDeviceAttributes(device_id, thingsboard_attributes)
-    # send numeric data ('telemetry') to Thingsboard as JSON (only floats or integers!!!). Example:
-    thingsboard_telemetry = {'temperature': temperature,
-                             'humidity': humidity}
-                             # 'latitude': float(payload['latitude']),
-                             # 'longitude': float(payload['longitude'])}
-    thingsboard.sendDeviceTelemetry(device_id.lower(), current_ts_ms, thingsboard_telemetry)
+    if device_id in device_list:
+        print('----- Known Device ('+device_id+') -----')
+        temperature = float((data[1]<<8)|data[0])/100
+        humidity = float((data[3]<<8)|data[2])/100
+        print("Temperature [C]: "+str(temperature))
+        print("Relative Humidity [%]: "+str(humidity))
+        # -------------------------
+        # Send to Thingsboard
+        # -------------------------
+        print('Sending data to ThingsBoard')
+        current_ts_ms = int(round(time.time() * 1000))   # current timestamp in milliseconds, needed for Thingsboard
+        # send non-numeric data ('attributes') to Thingsboard as JSON. Example:
+        # thingsboard_attributes = {'last_data_rate': str(payload['metadata']['data_rate'])}
+        # thingsboard.sendDeviceAttributes(device_id, thingsboard_attributes)
+        # send numeric data ('telemetry') to Thingsboard as JSON (only floats or integers!!!). Example:
+        thingsboard_telemetry = {'temperature': temperature,
+                                 'humidity': humidity}
+                                 # 'latitude': float(payload['latitude']),
+                                 # 'longitude': float(payload['longitude'])}
+        thingsboard.sendDeviceTelemetry(device_id.lower(), current_ts_ms, thingsboard_telemetry)
 
 
 # ------------------------------
@@ -71,6 +74,8 @@ with open('keys.json') as f:
 
 broker_address_lora="eu.thethings.network"
 broker_address_d7="backend.idlab.uantwerpen.be"
+
+device_list = ['493332340046001e']
 
 thingsboard = Thingsboard(keys['thingsboard']['url'], 1883, keys['thingsboard']['access_token'])
 

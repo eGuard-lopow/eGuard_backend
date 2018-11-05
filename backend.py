@@ -10,7 +10,7 @@ def on_message_d7(client, userdata, message):
     print("--------------- Dash-7 Received ---------------")
     raw = str(message.payload.decode("utf-8"))
     print("message topic: "+str(message.topic))
-    hardware_id = message.topic.split('/')[1]
+    hardware_id = message.topic.split('/')[2]
     print("hardware_id: "+hardware_id)
     print("message qos: "+str(message.qos))
     print("message retain flag: "+str(message.retain))
@@ -60,7 +60,7 @@ def process_data(data, device_id):
                              'humidity': humidity}
                              # 'latitude': float(payload['latitude']),
                              # 'longitude': float(payload['longitude'])}
-    thingsboard.sendDeviceTelemetry(device_id, current_ts_ms, thingsboard_telemetry)
+    thingsboard.sendDeviceTelemetry(device_id.lower(), current_ts_ms, thingsboard_telemetry)
 
 
 # ------------------------------

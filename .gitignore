@@ -4,6 +4,7 @@
 .idea/
 thingsboard.pyc
 parser.pyc
+device.pyc
 keys.json
 
 # ------------------------------

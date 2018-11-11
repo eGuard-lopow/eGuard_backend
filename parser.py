@@ -37,7 +37,7 @@ def parse_alp(raw):
     # ------------------------------
     message = message.split(', ') # ['stuff1=foo','stuff2=bar']
     for item in message:
-        item_split = item.split('=') # split key and value ['stuff1','foo']
+        item_split = item.split('=',1) # split key and value ['stuff1','foo']
         output[item_split[0]]=item_split[1] # add to dictionary
 
     return output   # return dictionary

@@ -28,7 +28,7 @@ class Device:
     def __init__(self, device_name, device_id):
         self.device_name = device_name
         self.device_id = device_id
-        self.queu = []
+        self.queue_d7 = {}
         # ------------------------------
         # Subscribe to Dash-7
         # ------------------------------
@@ -59,15 +59,20 @@ class Device:
 
     def on_message_d7(self, client, userdata, message):
         print('--------------- Dash-7 Received ---------------')
-        self.raw = str(message.payload.decode('utf-8'))
+        raw = str(message.payload.decode('utf-8'))
         print('message topic: '+str(message.topic))
-        self.hardware_id = message.topic.split('/')[2]
-        print('hardware_id: '+self.hardware_id)
+        hardware_id = message.topic.split('/')[2]
+        gateway_id = message.topic.split('/')[3]
+        print('hardware_id: '+hardware_id)
         print('message qos: '+str(message.qos))
         print('message retain flag: '+str(message.retain))
-        print('raw message: '+self.raw)
-        self.data = parse_alp(self.raw)
-        process_data(self.data, self.hardware_id)
+        print('raw message: '+raw)
+        dict = parse_alp(raw)
+        data = dict['data']
+        self.queue_d7[gateway_id] = [dict[link_budget]]   # link_budget for every receiving gateway
+        print('queue',self.queue_d7)
+        # start counter
+        # process_data(self.data, self.hardware_id)
         print('-----------------------------------------------')
 
     def on_message_lora(self, client, userdata, message):

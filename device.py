@@ -69,7 +69,7 @@ class Device:
         print('raw message: '+raw)
         dict = parse_alp(raw)
         data = dict['data']
-        self.queue_d7[gateway_id] = [dict[link_budget]]   # link_budget for every receiving gateway
+        self.queue_d7[gateway_id] = [int(dict[rx_level])]   # save rx_level for every receiving gateway
         print('queue',self.queue_d7)
         # start counter
         # process_data(self.data, self.hardware_id)

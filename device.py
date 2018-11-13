@@ -29,8 +29,8 @@ class Device:
     def __init__(self, device_name, device_id):
         self.device_name = device_name
         self.device_id = device_id
-        self.queue_d7 = {}
-        self.processor = threading.Thread()
+        self.queue_d7 = {}                      # empty queue for dash-7 deduplication and rssi values
+        self.processor = threading.Thread()     # empty thread object
         # ------------------------------
         # Subscribe to Dash-7
         # ------------------------------
@@ -85,45 +85,38 @@ class Device:
             print('Thread created')
             self.processor.start()
             print('Thread started')
-
-        # if not self.processor_lock.is_locked():
-            # self.processor_lock.acquire()
-            # self.processor = threading.Timer(2, target=self.process_data_counter, args=(dict['data'], hardware_id))
-            # self.processor_lock = processor.Lock()
-            # self.processor.start()
         print('-----------------------------------------------')
 
     def process_data_counter(self, data, device_id):
         time.sleep(5)
-        print('-------------------- Fingerprint --------------------')
-        self.process_data(data, device_id)   # process data of first received packet
+        print('-------------------- Dash-7 Process --------------------')
         print('queue',self.queue_d7)
         # <estimate location code here>
-        self.queue_d7 = {}                      # clear queue
-        # self.processor.release()                # release processor
-        print('-----------------------------------------------')
+        self.queue_d7 = {}                   # clear queue
+        self.process_data(data, device_id)   # process data of first received packet
+        print('--------------------------------------------------------')
 
     def on_message_lora(self, client, userdata, message):
         print('--------------- LoRa Received ---------------')
-        self.payload = str(message.payload.decode('utf-8'))
-        print('message received: '+self.payload)
+        payload = str(message.payload.decode('utf-8'))
+        print('message received: '+payload)
         print('message topic: '+str(message.topic))
         print('message qos: '+str(message.qos))
         print('message retain flag: '+str(message.retain))
-        self.payload = json.loads(self.payload)
-        print('payload: '+str(self.payload))
-        self.payload_raw = str(self.payload['payload_raw'])
-        print('payload_raw: '+self.payload_raw)
+        payload = json.loads(payload)
+        print('payload: '+str(payload))
+        payload_raw = str(payload['payload_raw'])
+        print('payload_raw: '+payload_raw)
 
-        self.bin = base64.b64decode(str(self.payload_raw))
+        bin = base64.b64decode(str(payload_raw))
         print('bin: '+bin)
-        self.hex = self.bin.encode('hex')
+        hex = bin.encode('hex')
         print('hex: ',hex)
 
-        self.data = []
-        for i in range(8, int(len(self.hex)), 2):   # ignore first 4 bytes (= 8 niples)
-            self.data.append(int(self.hex[i:i+2],16)) # convert hex byte to int
-        process_data(self.data, self.payload['hardware_serial'])
+        data = []
+        for i in range(8, len(hex), 2):   # ignore first 4 bytes (= 8 niples)
+            data.append(int(hex[i:i+2],16)) # convert hex byte to int
+        self.process_data(data, payload['hardware_serial'])
         print('---------------------------------------------')
 
     def process_data(self, data, device_id):

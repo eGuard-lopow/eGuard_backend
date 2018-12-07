@@ -30,9 +30,10 @@ class Device:
 
     thingsboard = Thingsboard(keys['thingsboard']['url'], 1883, keys['thingsboard']['access_token'])
 
-    def __init__(self, device_name, device_id):
+    def __init__(self, device_name, device_id, training_mode):
         self.device_name = device_name
         self.device_id = device_id
+        self.training_mode = training_mode
         self.queue_d7 = {}                      # empty queue for dash-7 deduplication and rssi values
         self.mongo_client = pymongo.MongoClient('mongodb://localhost:27017/')
         # db_list = self.mongo_client.list_database_names()
@@ -41,7 +42,7 @@ class Device:
         #     print('The database exists.')
         self.db = self.mongo_client['d7mockup']
         # print(self.db.list_collection_names())
-        self.collection = self.db['fingerprints2']
+        self.collection = self.db['fingerprints3']
         self.training_counter = 0
         self.processor = threading.Thread()     # empty thread object
         # ------------------------------
@@ -109,85 +110,85 @@ class Device:
         time.sleep(5)
         print('-------------------- Dash-7 Process --------------------')
         print('queue',self.queue_d7)
-        if False:
+        if self.training_mode:
             # -------------------------
             # Add to Training Database
             # -------------------------
             # x_in = input('X position >')
             # y_in = input('Y position >')
-            x_in = 6
+            x_in = 2
             y_in = 1
             mydict = { 'x': x_in,'y': y_in, 'gateways': self.queue_d7}
             self.collection.insert_one(mydict)
             print('Entry added to MongoDB')
             self.training_counter += 1
             print('Trainingcounter = '+str(self.training_counter))
-        if True: # else:
-            # -------------------------
-            # Localize
-            # -------------------------
-            probablistic = []
-            print('Docs:')
-            for document in self.collection.find():
-                print(document) # iterate the cursor
-                diff = []
-                for gateway_id in self.gateway_ids:
-                    if gateway_id not in self.queue_d7:
-                        self.queue_d7[gateway_id] = 200 # out of range
-                    if gateway_id not in document['gateways']:
-                        document['gateways'][gateway_id] = 200 # out of range
-                    diff.append( int(self.queue_d7[gateway_id])-int(document['gateways'][gateway_id]) )
-                print(diff)
-                rms = np.sqrt(np.mean(np.square(diff)))
-                print(rms)
-                probablistic.append({'x': document['x'],'y': document['y'],'rms':rms})
-            print(probablistic)
-            # lowest_rms = 999999  # unrealistic high
-            # x = 0
-            # y = 0
-            # for point in probablistic:
-            #     if point['rms']<lowest_rms:
-            #         lowest_rms = point['rms']
-            #         x = point['x']
-            #         y = point['y']
 
-            ordered_locations = sorted(probablistic, key = lambda i: i['rms']) # sort on RMS value
-            k = 5 # amount of neighbors
-            nearest_neighbors = ordered_locations[:k]
-            print('knn: '+str(nearest_neighbors))
-            # -------------------------
-            # Mean Value
-            # -------------------------
+        # -------------------------
+        # Localize
+        # -------------------------
+        probablistic = []
+        print('db entries:')
+        for document in self.collection.find():
+            print(document) # iterate the cursor
+            diff = []
+            for gateway_id in self.gateway_ids:
+                if gateway_id not in self.queue_d7:
+                    self.queue_d7[gateway_id] = 200 # out of range
+                if gateway_id not in document['gateways']:
+                    document['gateways'][gateway_id] = 200 # out of range
+                diff.append( int(self.queue_d7[gateway_id])-int(document['gateways'][gateway_id]) )
+            print(diff)
+            rms = np.sqrt(np.mean(np.square(diff)))
+            print(rms)
+            probablistic.append({'x': document['x'],'y': document['y'],'rms':rms})
+        print(probablistic)
+        # lowest_rms = 999999  # unrealistic high
+        # x = 0
+        # y = 0
+        # for point in probablistic:
+        #     if point['rms']<lowest_rms:
+        #         lowest_rms = point['rms']
+        #         x = point['x']
+        #         y = point['y']
 
-            # for location in nearest_neighbors:
-            #     x += location['x']
-            #     y += location['y']
-            # x=x/len(x)
-            # y=x/len(x)
+        ordered_locations = sorted(probablistic, key = lambda i: i['rms']) # sort on RMS value
+        k = 5 # amount of neighbors
+        nearest_neighbors = ordered_locations[:k]
+        print('knn: '+str(nearest_neighbors))
+        # -------------------------
+        # Mean Value
+        # -------------------------
+        # for location in nearest_neighbors:
+        #     x += location['x']
+        #     y += location['y']
+        # x=x/len(x)
+        # y=x/len(x)
 
-            # -------------------------
-            # Weighted Average
-            # -------------------------
-            x = 0
-            y = 0
-            total_weight = 0
-            for location in nearest_neighbors:
-                if location['rms']==0:
-                    weight = 100
-                else:
-                    weight = 1/location['rms']
-                x += int(location['x']) * weight
-                y += int(location['y']) * weight
-                total_weight += weight
-            x=x/total_weight
-            y=y/total_weight
-            print('Location is approximately x:'+str(x)+' y:'+str(y))
+        # -------------------------
+        # Weighted Average
+        # -------------------------
+        x = 0
+        y = 0
+        total_weight = 0
+        for location in nearest_neighbors:
+            if location['rms']==0:
+                weight = 100
+            else:
+                weight = 1/location['rms']
+            x += int(location['x']) * weight
+            y += int(location['y']) * weight
+            total_weight += weight
+        x=x/total_weight
+        y=y/total_weight
+        print('Location is approximately x:'+str(x)+' y:'+str(y))
 
         # -------------------------
         # Done
         # -------------------------
         self.queue_d7 = {}                   # clear queue
-        self.process_data(data, device_id)   # process data of first received packet
+        if not training_mode:
+            self.process_data(data, device_id)   # process data of first received packet
         print('--------------------------------------------------------')
 
     def on_message_lora(self, client, userdata, message):

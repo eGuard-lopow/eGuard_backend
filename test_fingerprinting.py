@@ -16,7 +16,8 @@ def test(k):
         else:
             # print('WRONG')
             amount_wrong += 1
-    print('{ k: '+str(k)+' }  Correct answers: '+str(amount_correct)+', Wrong answers: '+str(amount_wrong))
+    ratio = float(amount_correct)/(amount_correct+amount_wrong)
+    print('{ k: '+str(k)+' } \tCorrect answers: '+str(amount_correct)+' \tWrong answers: '+str(amount_wrong)+' \t=> '+str(round(ratio*100,2))+'%')
 
 for k in range(1,20):
     test(k)

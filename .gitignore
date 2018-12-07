@@ -5,6 +5,7 @@
 thingsboard.pyc
 parser.pyc
 device.pyc
+localization.pyc
 keys.json
 
 # ------------------------------

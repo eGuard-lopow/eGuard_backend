@@ -3,6 +3,8 @@ import numpy as np
 
 class Localization:
 
+    gateway_ids = ['4337313400210032', '433731340023003d', '42373436001c0037', '463230390032003e']
+
     def __init__( self, host, db, collection ):
         self.mongo_client = pymongo.MongoClient(str(host))
         # db_list = self.mongo_client.list_database_names()
@@ -22,23 +24,23 @@ class Localization:
         for document in self.collection.find():
             diff = []
             for gateway_id in self.gateway_ids:
-                if gateway_id not in self.rx_values:
-                    self.rx_values[gateway_id] = 200 # out of range
+                if gateway_id not in rx_values:
+                    rx_values[gateway_id] = 200 # out of range
                 if gateway_id not in document['gateways']:
                     document['gateways'][gateway_id] = 200 # out of range
-                diff.append( int(self.rx_values[gateway_id])-int(document['gateways'][gateway_id]) )
-            print(diff)
+                diff.append( int(rx_values[gateway_id])-int(document['gateways'][gateway_id]) )
+            # print(diff)
             rms = np.sqrt(np.mean(np.square(diff)))
-            print(rms)
+            # print(rms)
             probablistic.append({'x': document['x'],'y': document['y'],'rms':rms})
-        print(probablistic)
+        # print(probablistic)
 
         # -------------------------
         # k-nearest neighbors
         # -------------------------
         ordered_locations = sorted(probablistic, key = lambda i: i['rms']) # sort on RMS value
         nearest_neighbors = ordered_locations[:k]
-        print('knn: '+str(nearest_neighbors))
+        # print('knn: '+str(nearest_neighbors))
 
         # -------------------------
         # Weighted Average

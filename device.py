@@ -120,7 +120,7 @@ class Device:
         # Done
         # -------------------------
         self.queue_d7 = {}                   # clear queue
-        if not training_mode:
+        if not self.training_mode:
             self.process_data(data, device_id)   # process data of first received packet
         print('--------------------------------------------------------')
 

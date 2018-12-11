@@ -16,7 +16,7 @@ class Localization:
         self.collection = self.db[str(collection)]
 
     def train( self, x_value, y_value, rx_values ):
-        document = { 'x': x_value,'y': y_value, 'gateways': rx_value }
+        document = { 'x': x_value,'y': y_value, 'gateways': rx_values }
         self.collection.insert_one(document)
 
     def localize( self, rx_values, k ):

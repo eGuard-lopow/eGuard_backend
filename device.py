@@ -33,7 +33,7 @@ class Device:
         self.training_mode = training_mode
         self.x_training_location = location[0]
         self.y_training_location = location[1]
-        self.localization = Localization( 'mongodb://localhost:27017/', 'd7mockup', 'fingerprints3' )     # ( host, db, collection )
+        self.localization = Localization( 'mongodb://localhost:27017/', 'd7mockup', 'full3' )     # ( host, db, collection )
         self.queue_d7 = {}                      # empty queue for dash-7 deduplication and rssi values
         self.processor = threading.Thread()     # empty thread object
         # ------------------------------

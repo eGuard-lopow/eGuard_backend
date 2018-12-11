@@ -98,7 +98,7 @@ class Device:
         print('-----------------------------------------------')
 
     def process_data_counter(self, data, device_id):
-        time.sleep(5)
+        time.sleep(3)
         print('-------------------- Dash-7 Process --------------------')
         print('queue',self.queue_d7)
         if self.training_mode:
@@ -114,7 +114,7 @@ class Device:
         # Localize
         # -------------------------
         location = self.localization.localize( self.queue_d7, 5 )  # get location based on fingerprinting (rx_values, k-nearest neighbors)
-        print('Location is approximately x:'+str(location('x'))+' y:'+str(location('y')))
+        print('Location is approximately x:'+str(location['x'])+' y:'+str(location['y']))
 
         # -------------------------
         # Done

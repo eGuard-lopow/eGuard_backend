@@ -1,7 +1,7 @@
 from localization import Localization
 
-training_db    = Localization( 'mongodb://localhost:27017/', 'd7mockup', 'training' )
-test_db        = Localization( 'mongodb://localhost:27017/', 'd7mockup', 'test' )
+training_db    = Localization( 'mongodb://localhost:27017/', 'd7mockup', 'training2' )
+test_db        = Localization( 'mongodb://localhost:27017/', 'd7mockup', 'test2' )
 
 def test(k):
     amount_correct = 0

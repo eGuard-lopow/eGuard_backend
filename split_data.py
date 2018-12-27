@@ -2,11 +2,11 @@ from localization import Localization
 
 x_range = range(1,10)
 y_range = range(1,10)
-threshold = 30
+threshold = 70
 
-fingerprint_db = Localization( 'mongodb://localhost:27017/', 'd7mockup', 'fingerprints3' )
-training_db    = Localization( 'mongodb://localhost:27017/', 'd7mockup', 'training' )
-test_db        = Localization( 'mongodb://localhost:27017/', 'd7mockup', 'test' )
+fingerprint_db = Localization( 'mongodb://localhost:27017/', 'd7mockup', 'no_ack_test' )
+training_db    = Localization( 'mongodb://localhost:27017/', 'd7mockup', 'training2' )
+test_db        = Localization( 'mongodb://localhost:27017/', 'd7mockup', 'test2' )
 
 for x in x_range:
     for y in y_range:

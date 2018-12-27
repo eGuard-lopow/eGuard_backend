@@ -33,7 +33,7 @@ class Device:
         self.training_mode = training_mode
         self.x_training_location = location[0]
         self.y_training_location = location[1]
-        self.localization = Localization( 'mongodb://localhost:27017/', 'd7mockup', 'full3' )     # ( host, db, collection )
+        self.localization = Localization( 'mongodb://localhost:27017/', 'd7mockup', 'no_ack_test' )     # ( host, db, collection )
         self.queue_d7 = {}                      # empty queue for dash-7 deduplication and rssi values
         self.processor = threading.Thread()     # empty thread object
         # ------------------------------
@@ -98,7 +98,7 @@ class Device:
         print('-----------------------------------------------')
 
     def process_data_counter(self, data, device_id):
-        time.sleep(3)
+        time.sleep(2)
         print('-------------------- Dash-7 Process --------------------')
         print('queue',self.queue_d7)
         if self.training_mode:
@@ -113,7 +113,7 @@ class Device:
         # -------------------------
         # Localize
         # -------------------------
-        location = self.localization.localize( self.queue_d7, 5 )  # get location based on fingerprinting (rx_values, k-nearest neighbors)
+        location = self.localization.localize( self.queue_d7, 25 )  # get location based on fingerprinting (rx_values, k-nearest neighbors)
         print('Location is approximately x:'+str(location['x'])+' y:'+str(location['y']))
 
         # -------------------------

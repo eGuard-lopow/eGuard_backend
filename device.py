@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import print_function
 import paho.mqtt.client as mqtt # import the client
 from thingsboard import Thingsboard
 import time
@@ -6,6 +8,7 @@ import json
 import base64
 import os
 import logging
+import datetime
 from parser import parse_alp
 from localization import Localization
 
@@ -33,7 +36,7 @@ class Device:
         self.training_mode = training_mode
         self.x_training_location = location[0]
         self.y_training_location = location[1]
-        self.localization = Localization( 'mongodb://localhost:27017/', 'd7mockup', 'no_ack_test' )     # ( host, db, collection )
+        self.localization = Localization( 'mongodb://localhost:27017/', 'd7mockup', 'dipole' )     # ( host, db, collection )
         self.queue_d7 = {}                      # empty queue for dash-7 deduplication and rssi values
         self.processor = threading.Thread()     # empty thread object
         # ------------------------------
@@ -72,6 +75,7 @@ class Device:
 
     def on_message_d7(self, client, userdata, message):
         print('--------------- Dash-7 Received ---------------')
+        print('time: '+str(datetime.datetime.now()))
         raw = str(message.payload.decode('utf-8'))
         print('message topic: '+str(message.topic))
         hardware_id = message.topic.split('/')[2]
@@ -98,7 +102,7 @@ class Device:
         print('-----------------------------------------------')
 
     def process_data_counter(self, data, device_id):
-        time.sleep(2)
+        time.sleep(1)
         print('-------------------- Dash-7 Process --------------------')
         print('queue',self.queue_d7)
         if self.training_mode:
@@ -116,12 +120,34 @@ class Device:
         location = self.localization.localize( self.queue_d7, 25 )  # get location based on fingerprinting (rx_values, k-nearest neighbors)
         print('Location is approximately x:'+str(location['x'])+' y:'+str(location['y']))
 
+        # print('')
+        # for y in range(0,3):
+        #     print(str(y), end='')
+        #     if round(location['y']) == y:
+        #         print(' '+' '*2*int(round(location['x']))+'X')
+        #     else:
+        #         print(' ')
+        # print('  0 1 2 3 4 5 6')
+        # print('')
+
+        print('')
+        for y in range(0,3):
+            print(str(y), end='')
+            for x in range(0,6):
+                if y == round(location['y']) and x == round(location['x']):
+                    print(str(' X'), end='')
+                else:
+                    print(str(' •'), end='')
+            print('')
+        print('  0 1 2 3 4 5')
+        print('')
+
         # -------------------------
         # Done
         # -------------------------
         self.queue_d7 = {}                   # clear queue
         if not self.training_mode:
-            self.process_data(data, device_id)   # process data of first received packet
+            self.process_data(data, device_id, location)   # process data of first received packet
         print('--------------------------------------------------------')
 
     def on_message_lora(self, client, userdata, message):
@@ -144,10 +170,10 @@ class Device:
         data = []
         for i in range(8, len(hex), 2):   # ignore first 4 bytes (= 8 niples)
             data.append(int(hex[i:i+2],16)) # convert hex byte to int
-        self.process_data(data, payload['hardware_serial'])
+        self.process_data(data, payload['hardware_serial'], None)
         print('---------------------------------------------')
 
-    def process_data(self, data, device_id):
+    def process_data(self, data, device_id, location):
         print('data: '+str(data))
         temperature = float((data[1]<<8)|data[0])/100
         humidity = float((data[3]<<8)|data[2])/100
@@ -162,8 +188,8 @@ class Device:
         # thingsboard_attributes = {'last_data_rate': str(payload['metadata']['data_rate'])}
         # thingsboard.sendDeviceAttributes(device_id, thingsboard_attributes)
         # send numeric data ('telemetry') to Thingsboard as JSON (only floats or integers!!!). Example:
-        thingsboard_telemetry = {'temperature': temperature,
-                                 'humidity': humidity}
-                                 # 'latitude': float(payload['latitude']),
-                                 # 'longitude': float(payload['longitude'])}
+        if location == None:
+            thingsboard_telemetry = {'temperature': temperature, 'humidity': humidity}
+        else:
+            thingsboard_telemetry = {'temperature': temperature, 'humidity': humidity, 'x': float(location['x']), 'y': float(location['y'])}
         self.thingsboard.sendDeviceTelemetry(device_id.lower(), current_ts_ms, thingsboard_telemetry)

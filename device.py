@@ -222,8 +222,13 @@ class Device:
         # thingsboard_attributes = {'last_data_rate': str(payload['metadata']['data_rate'])}
         # thingsboard.sendDeviceAttributes(device_id, thingsboard_attributes)
         # send numeric data ('telemetry') to Thingsboard as JSON (only floats or integers!!!). Example:
-        if location == None:
-            thingsboard_telemetry = {'alert_fall':  alert_fall, 'alert_temperature':  alert_temperature, 'alert_humidity':  alert_humidity, 'temperature': temperature, 'humidity': humidity, 'light_level': light, 'latitude': latitude, 'longitude': longitude}
-        else:
-            thingsboard_telemetry = {'alert_fall':  alert_fall, 'alert_temperature':  alert_temperature, 'alert_humidity':  alert_humidity, 'temperature': temperature, 'humidity': humidity, 'light_level': light, 'latitude': latitude, 'longitude': longitude, 'x': float(location['x']), 'y': float(location['y'])}
+        thingsboard_telemetry = {'alert_fall':  alert_fall, 'alert_temperature':  alert_temperature, 'alert_humidity':  alert_humidity, 'temperature': temperature, 'humidity': humidity, 'light_level': light, 'latitude': latitude, 'longitude': longitude}
+        if location != None:
+            thingsboard_telemetry['x'] = float(location['x'])
+            thingsboard_telemetry['y'] = float(location['y'])
+
+        # if location == None:
+        #     thingsboard_telemetry = {'alert_fall':  alert_fall, 'alert_temperature':  alert_temperature, 'alert_humidity':  alert_humidity, 'temperature': temperature, 'humidity': humidity, 'light_level': light, 'latitude': latitude, 'longitude': longitude}
+        # else:
+        #     thingsboard_telemetry = {'alert_fall':  alert_fall, 'alert_temperature':  alert_temperature, 'alert_humidity':  alert_humidity, 'temperature': temperature, 'humidity': humidity, 'light_level': light, 'latitude': latitude, 'longitude': longitude, 'x': float(location['x']), 'y': float(location['y'])}
         self.thingsboard.sendDeviceTelemetry(device_id.lower(), current_ts_ms, thingsboard_telemetry)

@@ -196,12 +196,16 @@ class Device:
         # Light Sensor
         # -------------------------
         light = data[5]
-        direct_sunlight = light > 128
+        dark     =                 light <=  20
+        indoor   =  20 < light and light <= 230
+        sunlight = 230 < light
         print('detected light level is '+str(light),end='')
-        if direct_sunlight:
-            print(' which corresponds to direct sunlight')
-        else:
+        if dark:
+            print(' which corresponds to dark')
+        else if indoor:
             print(' which corresponds to indoor')
+        else if sunlight:
+            print(' which corresponds to direct sunlight')
         # -------------------------
         # GPS
         # -------------------------

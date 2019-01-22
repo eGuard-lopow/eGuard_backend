@@ -175,10 +175,40 @@ class Device:
 
     def process_data(self, data, device_id, location):
         print('data: '+str(data))
-        temperature = float((data[1]<<8)|data[0])/100
-        humidity = float((data[3]<<8)|data[2])/100
+        # -------------------------
+        # Alerts
+        # -------------------------
+        alerts = data[0]
+        alert_fall        = (alerts & 0b00000001) > 0
+        alert_temperature = (alerts & 0b00000010) > 0
+        alert_humidity    = (alerts & 0b00000100) > 0
+        print('Fall alert detected: '+str(alert_fall))
+        print('Temperature alert detected: '+str(alert_temperature))
+        print('Humidity alert detected: '+str(alert_humidity))
+        # -------------------------
+        # Temperature & Humidity
+        # -------------------------
+        temperature = float((data[2]<<8)|data[1])/100
+        humidity = float((data[4]<<8)|data[3])/100
         print('Temperature [C]: '+str(temperature))
         print('Relative Humidity [%]: '+str(humidity))
+        # -------------------------
+        # Light Sensor
+        # -------------------------
+        light = data[5]
+        direct_sunlight = light > 128
+        print('detected light level is '+str(light),end='')
+        if direct_sunlight:
+            print(' which corresponds to direct sunlight')
+        else:
+            print(' which corresponds to indoor')
+        # -------------------------
+        # GPS
+        # -------------------------
+        latitude = (data[6]<<24)|(data[7]<<16)|(data[8]<<8)|data[9]
+        longitude = (data[10]<<24)|(data[11]<<16)|(data[12]<<8)|data[13]
+        print('Latitude: '+str(latitude))
+        print('Longitude: '+str(longitude))
         # -------------------------
         # Send to Thingsboard
         # -------------------------

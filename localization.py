@@ -141,3 +141,46 @@ class Localization:
         x=x/total_weight
         y=y/total_weight
         return { 'x': x, 'y': y }
+
+    def localize_sorensen( self, rx_values, k ):
+        probablistic = []
+        for document in self.collection.find():
+            diff = []
+            summed = []
+            for gateway_id in self.gateway_ids:
+                if gateway_id not in rx_values:
+                    rx_values[gateway_id] = 200 # out of range
+                if gateway_id not in document['gateways']:
+                    document['gateways'][gateway_id] = 200 # out of range
+                diff.append( np.abs(int(rx_values[gateway_id])-int(document['gateways'][gateway_id])) )
+                summed.append( int(rx_values[gateway_id])+int(document['gateways'][gateway_id]) )
+            # print(diff)
+            rms = np.sum(diff) / np.sum(summed)
+            # print(rms)
+            probablistic.append({'x': document['x'],'y': document['y'],'rms':rms})
+        # print(probablistic)
+
+        # -------------------------
+        # k-nearest neighbors
+        # -------------------------
+        ordered_locations = sorted(probablistic, key = lambda i: i['rms']) # sort on RMS value
+        nearest_neighbors = ordered_locations[:k]
+        # print('knn: '+str(nearest_neighbors))
+
+        # -------------------------
+        # Weighted Average
+        # -------------------------
+        x = 0
+        y = 0
+        total_weight = 0
+        for fingerprint in nearest_neighbors:
+            if fingerprint['rms']==0:
+                weight = 100
+            else:
+                weight = 1/fingerprint['rms']
+            x += int(fingerprint['x']) * weight
+            y += int(fingerprint['y']) * weight
+            total_weight += weight
+        x=x/total_weight
+        y=y/total_weight
+        return { 'x': x, 'y': y }

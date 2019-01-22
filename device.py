@@ -11,6 +11,7 @@ import logging
 import datetime
 from parser import parse_alp
 from localization import Localization
+import telegram
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +31,8 @@ class Device:
 
     thingsboard = Thingsboard(keys['thingsboard']['url'], 1883, keys['thingsboard']['access_token'])
 
+    telegram_bot = telegram.Bot(token=keys['telegram']['token'])
+
     def __init__(self, device_name, device_id, training_mode, location ):
         self.device_name = device_name
         self.device_id = device_id
@@ -39,6 +42,7 @@ class Device:
         self.localization = Localization( 'mongodb://localhost:27017/', 'd7mockup', 'dipole' )     # ( host, db, collection )
         self.queue_d7 = {}                      # empty queue for dash-7 deduplication and rssi values
         self.processor = threading.Thread()     # empty thread object
+        print('Telegram Bot: '+str(self.telegram_bot.get_me()))
         # ------------------------------
         # Subscribe to Dash-7
         # ------------------------------
@@ -182,9 +186,15 @@ class Device:
         alert_fall        = (alerts & 0b00000010) > 0
         alert_temperature = (alerts & 0b00000100) > 0
         alert_humidity    = (alerts & 0b00001000) > 0
-        print('Fall alert detected: '+str(alert_fall))
-        print('Temperature alert detected: '+str(alert_temperature))
-        print('Humidity alert detected: '+str(alert_humidity))
+        if alert_fall:
+            print('Fall alert detected!')
+            self.telegram_bot.send_message(chat_id=self.keys['telegram']['chat_id'], text='Fall alert detected on '+self.device_name+'!')
+        if alert_temperature:
+            print('Temperature alert detected!')
+            self.telegram_bot.send_message(chat_id=self.keys['telegram']['chat_id'], text='Temperature alert detected on '+self.device_name+'!')
+        if alert_humidity:
+            print('Humidity alert detected!')
+            self.telegram_bot.send_message(chat_id=self.keys['telegram']['chat_id'], text='Humidity alert detected on '+self.device_name+'!')
         # -------------------------
         # Temperature & Humidity
         # -------------------------
@@ -209,15 +219,13 @@ class Device:
         # -------------------------
         # Send to Thingsboard
         # -------------------------
-        print('Sending data to ThingsBoard')
-        current_ts_ms = int(round(time.time() * 1000))   # current timestamp in milliseconds, needed for Thingsboard
         thingsboard_telemetry = {'alert_fall':  alert_fall, 'alert_temperature':  alert_temperature, 'alert_humidity':  alert_humidity, 'temperature': temperature, 'humidity': humidity, 'light_level': light}
         if location == None:
             # -------------------------
             # GPS
             # -------------------------
-            latitude = float((data[6]<<24)|(data[7]<<16)|(data[8]<<8)|data[9])/1000000
-            longitude = float((data[10]<<24)|(data[11]<<16)|(data[12]<<8)|data[13])/1000000
+            latitude = float((data[6]<<24)|(data[7]<<16)|(data[8]<<8)|data[9])/10000000
+            longitude = float((data[10]<<24)|(data[11]<<16)|(data[12]<<8)|data[13])/10000000
             print('Latitude: '+str(latitude))
             print('Longitude: '+str(longitude))
             thingsboard_telemetry['latitude'] = latitude
@@ -225,4 +233,6 @@ class Device:
         else:
             thingsboard_telemetry['x'] = float(location['x'])
             thingsboard_telemetry['y'] = float(location['y'])
+        print('Sending data to ThingsBoard')
+        current_ts_ms = int(round(time.time() * 1000))   # current timestamp in milliseconds, needed for Thingsboard
         self.thingsboard.sendDeviceTelemetry(device_id.lower(), current_ts_ms, thingsboard_telemetry)

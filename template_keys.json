@@ -6,5 +6,9 @@
   "thingsboard": {
     "url": "",
     "access_token": ""
+  },
+  "telegram": {
+    "token": "",
+    "chat_id": ""
   }
 }

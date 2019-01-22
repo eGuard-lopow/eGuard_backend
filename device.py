@@ -179,9 +179,9 @@ class Device:
         # Alerts
         # -------------------------
         alerts = data[0]
-        alert_fall        = (alerts & 0b00000001) > 0
-        alert_temperature = (alerts & 0b00000010) > 0
-        alert_humidity    = (alerts & 0b00000100) > 0
+        alert_fall        = (alerts & 0b00000010) > 0
+        alert_temperature = (alerts & 0b00000100) > 0
+        alert_humidity    = (alerts & 0b00001000) > 0
         print('Fall alert detected: '+str(alert_fall))
         print('Temperature alert detected: '+str(alert_temperature))
         print('Humidity alert detected: '+str(alert_humidity))
@@ -209,8 +209,8 @@ class Device:
         # -------------------------
         # GPS
         # -------------------------
-        latitude = (data[6]<<24)|(data[7]<<16)|(data[8]<<8)|data[9]
-        longitude = (data[10]<<24)|(data[11]<<16)|(data[12]<<8)|data[13]
+        latitude = float((data[6]<<24)|(data[7]<<16)|(data[8]<<8)|data[9])/1000000
+        longitude = float((data[10]<<24)|(data[11]<<16)|(data[12]<<8)|data[13])/1000000
         print('Latitude: '+str(latitude))
         print('Longitude: '+str(longitude))
         # -------------------------

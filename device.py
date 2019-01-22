@@ -202,9 +202,9 @@ class Device:
         print('detected light level is '+str(light),end='')
         if dark:
             print(' which corresponds to dark')
-        else if indoor:
+        elif indoor:
             print(' which corresponds to indoor')
-        else if sunlight:
+        elif sunlight:
             print(' which corresponds to direct sunlight')
         # -------------------------
         # GPS

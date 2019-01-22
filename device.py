@@ -207,28 +207,22 @@ class Device:
         elif sunlight:
             print(' which corresponds to direct sunlight')
         # -------------------------
-        # GPS
-        # -------------------------
-        latitude = float((data[6]<<24)|(data[7]<<16)|(data[8]<<8)|data[9])/1000000
-        longitude = float((data[10]<<24)|(data[11]<<16)|(data[12]<<8)|data[13])/1000000
-        print('Latitude: '+str(latitude))
-        print('Longitude: '+str(longitude))
-        # -------------------------
         # Send to Thingsboard
         # -------------------------
         print('Sending data to ThingsBoard')
         current_ts_ms = int(round(time.time() * 1000))   # current timestamp in milliseconds, needed for Thingsboard
-        # send non-numeric data ('attributes') to Thingsboard as JSON. Example:
-        # thingsboard_attributes = {'last_data_rate': str(payload['metadata']['data_rate'])}
-        # thingsboard.sendDeviceAttributes(device_id, thingsboard_attributes)
-        # send numeric data ('telemetry') to Thingsboard as JSON (only floats or integers!!!). Example:
-        thingsboard_telemetry = {'alert_fall':  alert_fall, 'alert_temperature':  alert_temperature, 'alert_humidity':  alert_humidity, 'temperature': temperature, 'humidity': humidity, 'light_level': light, 'latitude': latitude, 'longitude': longitude}
-        if location != None:
+        thingsboard_telemetry = {'alert_fall':  alert_fall, 'alert_temperature':  alert_temperature, 'alert_humidity':  alert_humidity, 'temperature': temperature, 'humidity': humidity, 'light_level': light}
+        if location == None:
+            # -------------------------
+            # GPS
+            # -------------------------
+            latitude = float((data[6]<<24)|(data[7]<<16)|(data[8]<<8)|data[9])/1000000
+            longitude = float((data[10]<<24)|(data[11]<<16)|(data[12]<<8)|data[13])/1000000
+            print('Latitude: '+str(latitude))
+            print('Longitude: '+str(longitude))
+            thingsboard_telemetry['latitude'] = latitude
+            thingsboard_telemetry['longitude'] = longitude
+        else:
             thingsboard_telemetry['x'] = float(location['x'])
             thingsboard_telemetry['y'] = float(location['y'])
-
-        # if location == None:
-        #     thingsboard_telemetry = {'alert_fall':  alert_fall, 'alert_temperature':  alert_temperature, 'alert_humidity':  alert_humidity, 'temperature': temperature, 'humidity': humidity, 'light_level': light, 'latitude': latitude, 'longitude': longitude}
-        # else:
-        #     thingsboard_telemetry = {'alert_fall':  alert_fall, 'alert_temperature':  alert_temperature, 'alert_humidity':  alert_humidity, 'temperature': temperature, 'humidity': humidity, 'light_level': light, 'latitude': latitude, 'longitude': longitude, 'x': float(location['x']), 'y': float(location['y'])}
         self.thingsboard.sendDeviceTelemetry(device_id.lower(), current_ts_ms, thingsboard_telemetry)

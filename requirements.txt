@@ -1,3 +1,4 @@
 -r pyd7a/requirements.txt
 pymongo
 numpy
+python-telegram-bot

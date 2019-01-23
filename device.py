@@ -32,7 +32,7 @@ class Device:
 
     thingsboard = Thingsboard(keys['thingsboard']['url'], 1883, keys['thingsboard']['access_token'])
 
-    telegram_bot = telegram.Bot(token=keys['']['token'])
+    telegram_bot = telegram.Bot(token=keys['telegram']['token'])
 
     def __init__(self, device_name, device_id, training_mode, location ):
         self.device_name = device_name

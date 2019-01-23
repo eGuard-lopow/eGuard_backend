@@ -12,6 +12,7 @@ import datetime
 from parser import parse_alp
 from localization import Localization
 import telegram
+from coordinateConversion import degreesToCoordinates
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +32,7 @@ class Device:
 
     thingsboard = Thingsboard(keys['thingsboard']['url'], 1883, keys['thingsboard']['access_token'])
 
-    telegram_bot = telegram.Bot(token=keys['telegram']['token'])
+    telegram_bot = telegram.Bot(token=keys['']['token'])
 
     def __init__(self, device_name, device_id, training_mode, location ):
         self.device_name = device_name
@@ -224,8 +225,11 @@ class Device:
             # -------------------------
             # GPS
             # -------------------------
-            latitude = float((data[6]<<24)|(data[7]<<16)|(data[8]<<8)|data[9])/10000000
-            longitude = float((data[10]<<24)|(data[11]<<16)|(data[12]<<8)|data[13])/10000000
+            latitude = float((data[6]<<24)|(data[7]<<16)|(data[8]<<8)|data[9])
+            longitude = float((data[10]<<24)|(data[11]<<16)|(data[12]<<8)|data[13])
+
+            latitude, longitude = degreesToCoordinates(latitude,longitude)
+
             print('Latitude: '+str(latitude))
             print('Longitude: '+str(longitude))
             if not(latitude==0 and longitude==0):

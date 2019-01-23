@@ -250,8 +250,9 @@ class Device:
     def deg2dec(self, degree):
         print('degree: '+str(degree))
         sec = (degree%100000)/1000
-        min = math.floor(degree/100000)%100
-        deg = math.floor(degree/10000000)%100
+        min = math.trunc(degree/100000)%100
+        deg = math.trunc(degree/10000000)%100
+        print('ping')
         print('test: '+str(deg)+' '+str(min)+' '+str(sec)+' ')
         dec = deg + min/60 + sec/6000
         return dec

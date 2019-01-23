@@ -12,7 +12,7 @@ import datetime
 from parser import parse_alp
 from localization import Localization
 import telegram
-from coordinateConversion import degreesToCoordinates
+import math
 
 logger = logging.getLogger(__name__)
 
@@ -228,7 +228,8 @@ class Device:
             latitude = float((data[6]<<24)|(data[7]<<16)|(data[8]<<8)|data[9])
             longitude = float((data[10]<<24)|(data[11]<<16)|(data[12]<<8)|data[13])
 
-            latitude, longitude = degreesToCoordinates(latitude,longitude)
+            latitude  = self.deg2dec(latitude)
+            longitude = self.deg2dec(longitude)
 
             print('Latitude: '+str(latitude))
             print('Longitude: '+str(longitude))
@@ -245,3 +246,12 @@ class Device:
         print('Sending data to ThingsBoard')
         current_ts_ms = int(round(time.time() * 1000))   # current timestamp in milliseconds, needed for Thingsboard
         self.thingsboard.sendDeviceTelemetry(device_id.lower(), current_ts_ms, thingsboard_telemetry)
+
+    def deg2dec(self, degree):
+        print('degree: '+str(degree))
+        sec = (degree%100000)/1000
+        min = math.floor(degree/100000)%100
+        deg = math.floor(degree/10000000)%100
+        print('test: '+str(deg)+' '+str(min)+' '+str(sec)+' ')
+        dec = deg + min/60 + sec/6000
+        return dec

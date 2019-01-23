@@ -6,6 +6,7 @@ thingsboard.pyc
 parser.pyc
 device.pyc
 localization.pyc
+coordinateConversion.pyc
 keys.json
 
 # ------------------------------

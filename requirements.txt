@@ -1,4 +1,5 @@
 -r pyd7a/requirements.txt
+paho-mqtt
 pymongo
 numpy
 python-telegram-bot

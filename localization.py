@@ -142,7 +142,7 @@ class Localization:
         y=y/total_weight
         return { 'x': x, 'y': y }
 
-    def localize_sorensen( self, rx_values, k ):
+    def localize_sor( self, rx_values, k ):
         probablistic = []
         for document in self.collection.find():
             diff = []

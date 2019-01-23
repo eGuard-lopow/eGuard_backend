@@ -53,7 +53,7 @@ def test(k):
     amount_correct = 0
     amount_wrong = 0
     for document in test_db.collection.find():
-        location = training_db.localize_sorensen( document['gateways'], k )
+        location = training_db.localize_sor( document['gateways'], k )
         # print('The estimated location is x:'+str(location['x'])+' y:'+str(location['y']))
         # print('The real location is x:'+str(document['x'])+' y:'+str(document['y']))
         if round(location['x']) == document['x'] and round(location['y']) == document['y']:

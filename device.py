@@ -228,11 +228,16 @@ class Device:
             longitude = float((data[10]<<24)|(data[11]<<16)|(data[12]<<8)|data[13])/10000000
             print('Latitude: '+str(latitude))
             print('Longitude: '+str(longitude))
-            thingsboard_telemetry['latitude'] = latitude
-            thingsboard_telemetry['longitude'] = longitude
+            if not(latitude==0 and longitude==0):
+                thingsboard_telemetry['x'] = -1
+                thingsboard_telemetry['y'] = -1
+                thingsboard_telemetry['latitude'] = latitude
+                thingsboard_telemetry['longitude'] = longitude
         else:
             thingsboard_telemetry['x'] = float(location['x'])
             thingsboard_telemetry['y'] = float(location['y'])
+            thingsboard_telemetry['latitude'] = 51.17762
+            thingsboard_telemetry['longitude'] = 4.41474
         print('Sending data to ThingsBoard')
         current_ts_ms = int(round(time.time() * 1000))   # current timestamp in milliseconds, needed for Thingsboard
         self.thingsboard.sendDeviceTelemetry(device_id.lower(), current_ts_ms, thingsboard_telemetry)

@@ -15,7 +15,7 @@ The main application of the backend has the following structure:
 
 ![Backend UML](images/backend_uml.png?raw=true "Backend UML")
 
-The Backend is the main application. It creates and initializes devices. Every device will be running in a seperate thread. the Device class contains everything to operate a device and handle it's data flow. . Device objects can't communicate to each other and are completely isolated on the backend application.
+The Backend is the main application. It creates and initializes devices. Every device will be running in a seperate thread. the Device class contains everything to operate a device and handle it's data flow. Device objects can't communicate to each other and are completely isolated on the backend application.
 
 ## Miscellaneous Scripts
 

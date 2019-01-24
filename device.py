@@ -189,13 +189,13 @@ class Device:
         alert_humidity    = (alerts & 0b00001000) > 0
         if alert_fall:
             print('Fall alert detected!')
-            self.telegram_bot.send_message(chat_id=self.keys['telegram']['chat_id'], text='Fall alert detected on '+self.device_name+'!')
+            self.telegram_bot.send_message(chat_id=self.keys['telegram']['chat_id'], text='Fall alert detected on '+self.device_name+'!'+'\n'+'Go To Dashboard: http://thingsboard.idlab.uantwerpen.be:8080/dashboards/1c701df0-dcf8-11e8-8bf0-89570d31e3bf')
         if alert_temperature:
             print('Temperature alert detected!')
-            self.telegram_bot.send_message(chat_id=self.keys['telegram']['chat_id'], text='Temperature alert detected on '+self.device_name+'!')
+            self.telegram_bot.send_message(chat_id=self.keys['telegram']['chat_id'], text='Temperature alert detected on '+self.device_name+'!'+'\n'+'Go To Dashboard: http://thingsboard.idlab.uantwerpen.be:8080/dashboards/1c701df0-dcf8-11e8-8bf0-89570d31e3bf')
         if alert_humidity:
             print('Humidity alert detected!')
-            self.telegram_bot.send_message(chat_id=self.keys['telegram']['chat_id'], text='Humidity alert detected on '+self.device_name+'!')
+            self.telegram_bot.send_message(chat_id=self.keys['telegram']['chat_id'], text='Humidity alert detected on '+self.device_name+'!'+'\n'+'Go To Dashboard: http://thingsboard.idlab.uantwerpen.be:8080/dashboards/1c701df0-dcf8-11e8-8bf0-89570d31e3bf')
         # -------------------------
         # Temperature & Humidity
         # -------------------------

@@ -23,7 +23,7 @@ The Backend is the main application. It creates and initializes devices. Every d
 Used to splits the dataset into 2 datasets for training and testing.
 
 ### test_fingerprinting.py
-Benchmarks the multiple distance functions and k values of the knn algorithm. The dataset needs to be split prior to running this script. This makes use of the dataset.
+Benchmarks the multiple distance functions and k values of the knn algorithm. The dataset needs to be split prior to running this script.
 
 ### mapper.py
 Gives u an overview of locations and amount of fingerprints on that location. Can be used to get an brief overview of the dataset.

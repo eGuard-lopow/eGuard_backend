@@ -136,7 +136,7 @@ class Device:
         # print('')
 
         print('')
-        for y in range(0,3):
+        for y in [2,1,0]:
             print(str(y), end='')
             for x in range(0,6):
                 if y == round(location['y']) and x == round(location['x']):
